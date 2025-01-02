@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "041c122bbc912111ab9832d633cf6211"
-application_url = "https://undergraduate-selections-deemed-allowance.trycloudflare.com"
+application_url = "https://entitled-occupation-manufacturers-amazing.trycloudflare.com"
 embedded = true
 name = "waave-compliance-regx"
 handle = "waave-compliance-regx"
@@ -23,9 +23,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/auth/callback",
-  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/auth/shopify/callback",
-  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/api/auth/callback"
+  "https://entitled-occupation-manufacturers-amazing.trycloudflare.com/auth/callback",
+  "https://entitled-occupation-manufacturers-amazing.trycloudflare.com/auth/shopify/callback",
+  "https://entitled-occupation-manufacturers-amazing.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
