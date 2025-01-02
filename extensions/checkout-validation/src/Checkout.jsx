@@ -1,14 +1,14 @@
 import {
   reactExtension,
-  Banner,
-  BlockStack,
-  Checkbox,
-  Text,
-  useApi,
-  useApplyAttributeChange,
-  useInstructions,
-  useTranslate,
+  useBillingAddress,
+  useBuyerJourneyIntercept,
+  useCartLines,
+  useEmail,
+  useShippingAddress,
+  useTotalAmount,
 } from "@shopify/ui-extensions-react/checkout";
+
+import AgeChecker from "./AgeChecker.js";
 
 // 1. Choose an extension target
 export default reactExtension("purchase.checkout.block.render", () => (
@@ -16,44 +16,97 @@ export default reactExtension("purchase.checkout.block.render", () => (
 ));
 
 function Extension() {
-  const translate = useTranslate();
-  const { extension } = useApi();
-  const instructions = useInstructions();
-  const applyAttributeChange = useApplyAttributeChange();
+  const url = "https://staging.getwaave.co/compliance/validate";
 
+  const billing = useBillingAddress();
+  const shipping = useShippingAddress();
 
-  // 2. Check instructions for feature availability, see https://shopify.dev/docs/api/checkout-ui-extensions/apis/cart-instructions for details
-  if (!instructions.attributes.canUpdateAttributes) {
-    // For checkouts such as draft order invoices, cart attributes may not be allowed
-    // Consider rendering a fallback UI or nothing at all, if the feature is unavailable
-    return (
-      <Banner title="checkout-validation" status="warning">
-        {translate("attributeChangesAreNotSupported")}
-      </Banner>
-    );
-  }
+  const email = useEmail();
+  const amount = useTotalAmount();
 
-  // 3. Render a UI
-  return (
-    <BlockStack border={"dotted"} padding={"tight"}>
-      <Banner title="checkout-validation">
-        {translate("welcome", {
-          target: <Text emphasis="italic">{extension.target}</Text>,
-        })}
-      </Banner>
-      <Checkbox onChange={onCheckboxChange}>
-        {translate("iWouldLikeAFreeGiftWithMyOrder")}
-      </Checkbox>
-    </BlockStack>
-  );
+  const items = useCartLines();
+  const products = items.map((item) => {
+    return {
+      id: item.merchandise.id,
+      name: item.merchandise.title,
+      sku: item.merchandise.sku,
+      price: item.cost.totalAmount,
+      quantity: item.quantity,
+      categories: [],
+    };
+  });
 
-  async function onCheckboxChange(isChecked) {
-    // 4. Call the API to modify checkout
-    const result = await applyAttributeChange({
-      key: "requestedFreeGift",
-      type: "updateAttribute",
-      value: isChecked ? "yes" : "no",
-    });
-    console.log("applyAttributeChange result", result);
-  }
+  const data = {
+    venue_id: 1,
+    amount: amount,
+    email: email,
+    ip_address: "0.0.0.0",
+    products: products,
+    billing: {
+      billing_first_name: billing.firstName,
+      billing_last_name: billing.lastName,
+      billing_country: billing.countryCode,
+      billing_address_1: billing.address1,
+      billing_address_2: billing.address2,
+      billing_city: billing.city,
+      billing_state: billing.provinceCode,
+      billing_postcode: billing.provinceCode,
+      billing_phone: billing.phone,
+      billing_email: email,
+    },
+    shipping: {
+      shipping_first_name: shipping.firstName,
+      shipping_last_name: shipping.lastName,
+      shipping_country: shipping.countryCode,
+      shipping_address_1: shipping.address1,
+      shipping_address_2: shipping.address2,
+      shipping_city: shipping.city,
+      shipping_state: "",
+      shipping_postcode: shipping.provinceCode,
+      shipping_phone: shipping.phone,
+      shipping_email: email,
+    },
+    is_need_to_check: true,
+    compliance_standalone: "1",
+  };
+
+  const validate = async () => {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        return {
+          behavior: "allow",
+        };
+      }
+
+      // AgeChecker.showPopup();
+
+      return {
+        behavior: "block",
+        reason: "reason",
+        errors: [{ message: result.message }],
+      };
+    } catch (error) {
+      return {
+        behavior: "block",
+        reason: "reason",
+        errors: [{ message: error }],
+      };
+    }
+  };
+
+  useBuyerJourneyIntercept(async () => {
+    return await validate();
+  });
+
+  return <></>;
 }
