@@ -1,0 +1,36 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "041c122bbc912111ab9832d633cf6211"
+application_url = "https://undergraduate-selections-deemed-allowance.trycloudflare.com"
+embedded = true
+name = "waave-compliance-regx"
+handle = "waave-compliance-regx"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/auth/callback",
+  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/auth/shopify/callback",
+  "https://undergraduate-selections-deemed-allowance.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "elemental-truth.myshopify.com"
+automatically_update_urls_on_dev = true
