@@ -1,5 +1,6 @@
 import {
   reactExtension,
+  useApi,
   useBillingAddress,
   useBuyerJourneyIntercept,
   useCartLines,
@@ -20,6 +21,8 @@ function Extension() {
 
   const billing = useBillingAddress();
   const shipping = useShippingAddress();
+
+  const { ui } = useApi();
 
   const email = useEmail();
   const amount = useTotalAmount();
@@ -50,7 +53,7 @@ function Extension() {
       billing_address_2: billing.address2,
       billing_city: billing.city,
       billing_state: billing.provinceCode,
-      billing_postcode: billing.provinceCode,
+      billing_postcode: billing.zip,
       billing_phone: billing.phone,
       billing_email: email,
     },
@@ -61,8 +64,8 @@ function Extension() {
       shipping_address_1: shipping.address1,
       shipping_address_2: shipping.address2,
       shipping_city: shipping.city,
-      shipping_state: "",
-      shipping_postcode: shipping.provinceCode,
+      shipping_state: shipping.provinceCode,
+      shipping_postcode: shipping.zip,
       shipping_phone: shipping.phone,
       shipping_email: email,
     },
@@ -88,7 +91,7 @@ function Extension() {
         };
       }
 
-      // AgeChecker.showPopup();
+      AgeChecker.showPopup();
 
       return {
         behavior: "block",
